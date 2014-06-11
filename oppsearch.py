@@ -66,12 +66,8 @@ class SearchDoc(object):
             print "Szukane dokumenty to:"
             for doc in self.search_result:
                 print 80*'-'
-                print """
-Kod: %s
-Nr Dokumentu: %s
-Idnetyfikator: %s
-Rok: %s
-                    """ % (doc['kod'], doc['id'], doc['ident'], doc['rok'])
+                print "Kod: %s\nNr dokumentu: %s\nIdnetyfikator: %s\nRok: %s" % \
+                      (doc['kod'], doc['id'], doc['ident'], doc['rok'])
                 print 80*'-'
         else:
             print 'Nie znaleziono dokumentów....'
