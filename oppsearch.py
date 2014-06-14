@@ -10,7 +10,7 @@ __author__ = 'daniel'
 
 class Load(object):
     def __init__(self, f_opp, f_pit):
-        self.s_pattern = re.compile(r'.*(\d{8}).*(OPP-1|PIT-37|PIT-36|PIT36L|PIT-28).*(\d{4}).*((\d{3}-\d{3}-\d{2}-\d{2})|(P \d{11})).*')
+        self.s_pattern = re.compile(r'.*(\d{8}).*(OPP-1|PIT-37|PIT-36|PIT36L|PIT-28).*(\d{4})\s+\w{1}\s+\d+\s+(\d{3}-\d{3}-\d{2}-\d{2}|P.\d{11}).*')
         self.opp = None
         self.pit = None
         self.f_opp = f_opp
