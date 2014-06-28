@@ -7,21 +7,26 @@ import urllib2
 
 __author__ = 'daniel'
 
-
 class Load(object):
-    def __init__(self, f_opp, f_pit):
+    def __init__(self, f_rap):
         self.s_pattern = re.compile(r'.*(\d{8}).*(OPP-1|PIT-37|PIT-36|PIT36L|PIT-28).*(\d{4})\s+\w{1}\s+\d+\s+(\d{3}-\d{3}-\d{2}-\d{2}|P.\d{11}).*')
         self.opp = None
         self.pit = None
-        self.f_opp = f_opp
-        self.f_pit = f_pit
+        self.f_rap = f_rap
 
     def run(self):
-        self.opp = self.__get_data(self.f_opp)
-        self.pit = self.__get_data(self.f_pit)
+        self.opp, self.pit = self.__get_data(self.f_rap)
 
     def __get_data(self, file):
-        data = []
+        """
+        Function parse raport file in to separate list: with opp entries and pit
+        entries. Eache entry in each list is a dictionary contaning: id, kod,
+        rok, ident.
+        :param file: opened input file
+        :return: opp_list, pit_list
+        """
+        data_opp = []
+        data_pit = []
         try:
             lines = file.readlines()
         except AttributeError:
@@ -36,9 +41,13 @@ class Load(object):
                        'rok': result[2],
                        'ident': result[3]
                 }
-                data.append(data_ele)
+                if data_ele.get('kod') == 'OPP-1':
+                    data_opp.append(data_ele)
+                else:
+                    data_pit.append(data_ele)
 
-        return data
+
+        return data_opp, data_pit
 
 
 class SearchDoc(object):
@@ -63,12 +72,14 @@ class SearchDoc(object):
 
     def __show(self):
         if self.search_result:
-            print "Szukane dokumenty to:"
+            print "OppSearch\n"
+            print "Nr\tKod\t\tNr dok\t\tIdentfikator\tRok"
+            print 80*'-'
+            x = 1
             for doc in self.search_result:
-                print 80*'-'
-                print "Kod: %s\nNr dokumentu: %s\nIdnetyfikator: %s\nRok: %s" % \
-                      (doc['kod'], doc['id'], doc['ident'], doc['rok'])
-                print 80*'-'
+                print "%d.\t%s\t%s\t%s\t%s" % \
+                (x, doc['kod'], doc['id'], doc['ident'], doc['rok'])
+                x +=1
         else:
             print 'Nie znaleziono dokumentów....'
 
@@ -98,21 +109,17 @@ class SearchDoc(object):
 
 if __name__ == "__main__":
 
-    arg = sys.argv[1:]
-    if len(arg) == 2:
-        # fo = urllib2.Request(arg[0])
-        req = urllib2.Request(arg[0], None, {'User-agent': 'Mozilla/5.0'})
+    try:
+        fr = open('/home/daniel/git/python/oppsearch/rapviewall.htm', 'r')
+    except IOError:
+        print "Poda URL raportu:"
+        url = raw_input(">>>> ")
+        # print url
+        req = urllib2.Request(url, None, {'User-agent': 'Mozilla/5.0'})
         page = urllib2.urlopen(req).read()
-        fo = page.split('\n')
-        req = urllib2.Request(arg[1], None, {'User-agent': 'Mozilla/5.0'})
-        page = urllib2.urlopen(req).read()
-        fp = page.split('\n')
-    else:
-        # pliki
-        fo = open('', 'r')
-        fp = open('', 'r')
+        fr = page.split('\n')
 
-    loader = Load(fo, fp)
+    loader = Load(fr)
     loader.run()
     search = SearchDoc(loader)
     search.run()
