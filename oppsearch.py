@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 import re
-import sys
 import urllib2
 
 __author__ = 'daniel'
